@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+
+            android:title="Home"
+            android:id="@+id/main_home"
+            android:icon="@drawable/home"/>
+
+
+        <item
+
+            android:title="Profile"
+            android:id="@+id/user_profile"
+            android:icon="@drawable/man_icon"/>
+
+        <item
+
+            android:title="Groups"
+            android:id="@+id/user_groups"
+            android:icon="@drawable/groups_icon"/>
+
+        <item
+
+            android:title="Favorite"
+            android:id="@+id/user_favorite"
+            android:icon="@drawable/favorite"/>
+        <item
+
+            android:title="Settings"
+            android:id="@+id/user_settings"
+            android:icon="@drawable/settings"/>
+
+
+
+    </group>
+
+
+    <item android:title="">
+    <menu>
+        <item
+            android:id="@+id/contactus"
+            android:iconTint="@color/colorPrimaryDark"
+            android:icon="@drawable/contactus"
+            android:title="Contact us"/>
+        <item
+            android:id="@+id/aboutus"
+            android:iconTint="@color/colorPrimaryDark"
+            android:icon="@drawable/aboutcolored"
+            android:title="About"/>
+        <item
+            android:id="@+id/signout"
+            android:iconTint="@color/colorPrimaryDark"
+            android:icon="@drawable/signoutcolored"
+            android:title="Sign out"/>
+    </menu>
+    </item>
+
+
+
+</menu>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "481928810960",
+    "firebase_url": "https://way-tracker-c5180.firebaseio.com",
+    "project_id": "way-tracker-c5180",
+    "storage_bucket": "way-tracker-c5180.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481928810960:android:a716b3b3ffdefd66",
+        "android_client_info": {
+          "package_name": "com.hennonoman.waytracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "481928810960-pbv4jdak1kvhessrh4m22afdpbe3cd9p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hennonoman.waytracker",
+            "certificate_hash": "cbbfd6726a0824c78773dd2c196ab750d2533bbb"
+          }
+        },
+        {
+          "client_id": "481928810960-vbhcpu2ajhp0cpv96vis3v6j2rqeomr9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApxlKdZEDCJm_KdVnxi0r3MZViiOS2VOw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "481928810960-vbhcpu2ajhp0cpv96vis3v6j2rqeomr9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

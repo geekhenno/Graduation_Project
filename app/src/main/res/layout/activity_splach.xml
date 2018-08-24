@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SplachActivity">
+
+
+
+
+        <ImageView
+            android:id="@+id/logo1"
+            android:src="@drawable/logo1"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
+             />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/logo1"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Way  Tracker"
+            android:textSize="90dp"
+            android:textAlignment="center"
+            android:fontFamily="@font/leoscar_sans_serif"
+            android:textColor="#006064" />
+
+
+    <TextView
+        android:textSize="12dp"
+        android:textStyle="normal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textColor="#006064"
+        android:fontFamily="@font/leoscar_sans_serif"
+        android:gravity="center"
+        android:layout_marginBottom="4dp"
+        android:text="All Rights Reserved © 2018 HENNO" />
+
+
+</RelativeLayout>

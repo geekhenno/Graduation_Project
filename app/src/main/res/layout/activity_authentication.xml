@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".AuthenticationActivity">
+
+
+
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+        android:layout_gravity="center"
+        android:src="@drawable/logo1"/>
+
+
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+
+        >
+        <EditText
+            android:id="@+id/codeNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:hint="confermation number"
+            android:gravity="left"
+            android:imeOptions="actionNext"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:paddingEnd="20dp"
+            android:textSize="20dp"
+            android:inputType="number"
+            android:maxLength="6"
+
+            />
+    </android.support.design.widget.TextInputLayout>
+
+
+
+
+    <Button
+        android:id="@+id/regCode"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:text="Register"
+        android:textAllCaps="false"
+        android:textColor="#fff"
+        android:layout_gravity="center"
+        android:textSize="20dp"
+        android:background="@drawable/login_button"
+        android:layout_marginTop="45dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center|bottom"
+        android:layout_marginTop="15dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't receive a confirmation code? "
+            android:fontFamily="@font/sukarregular"
+            android:textColor="#006064"
+
+            />
+        <TextView
+            android:id="@+id/reSendCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Re Send"
+            android:fontFamily="@font/sukarregular"
+            android:textColor="@color/colorPrimaryDark"
+            android:clickable="true"
+            android:textStyle="bold"
+
+            />
+
+
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
