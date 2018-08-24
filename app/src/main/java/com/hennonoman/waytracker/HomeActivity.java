@@ -275,6 +275,9 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                     case R.id.signout:
 
 
+                        userphone="";
+                        usernameProfile="";
+                        pathProfile="";
                         signoutDialog();
 
                         break;

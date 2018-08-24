@@ -32,6 +32,8 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -224,6 +226,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                     public void onSuccess(Void aVoid) {
 
 
+                        saveUserNametoFirebase();
+                        saveImagetoFirebase();
                         Toast.makeText(AuthenticationActivity.this,"Register successfully",Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(AuthenticationActivity.this,HomeActivity.class));
                         myEditor.putBoolean("checksignin", true);
@@ -246,6 +250,72 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
     }
+
+
+
+    public void saveUserNametoFirebase()
+    {
+
+
+
+
+        Map<String, Object> newContact = new HashMap<>();
+        newContact.put("user_name","" );
+
+
+        firestoer.collection("users_name").document(phone).set(newContact)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+    }
+
+
+    private void saveImagetoFirebase()
+    {
+
+
+        String phone = HomeActivity.userphone;
+        Map<String, Object> newContact = new HashMap<>();
+        newContact.put("user_image", "def_profile.png");
+        firestoer.collection("users_images").document(phone).set(newContact)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+
+
+
+
+
+
+
+
+    }
+
+
 
 
 
