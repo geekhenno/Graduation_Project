@@ -343,7 +343,7 @@ public class Profile extends Fragment implements View.OnClickListener{
     {
 
 
-        if( mImageUri != null)
+        if( resultUri != null)
         {
 
             mProgress.setMessage("Saving...");
