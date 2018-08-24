@@ -183,7 +183,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         firestoer = FirebaseFirestore.getInstance();
         userphone = mySharedPreferences.getString("userphone","");
 
-        readUserName();
+       readUserName();
         readuserImage();
 
 
@@ -380,9 +380,8 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     public  void readUserName()
     {
 
-
         final View view = new Profile().getView();
-        String phone = HomeActivity.userphone;
+        String phone = userphone;
         final String user_name;
         DocumentSnapshot doc=null;
         DocumentReference user = firestoer.collection("users_name").document(phone);
@@ -399,16 +398,14 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                     {
 
 
-                        if (!doc.getString("user_name").isEmpty())
-                        {
 
                             usernameProfile=doc.getString("user_name");
-                            View headerView = navigationView.getHeaderView(0);
+                             headerView = navigationView.getHeaderView(0);
                             TextView navUsername =  headerView.findViewById(R.id.username);
                             navUsername.setText(usernameProfile);
 
 
-                        }
+
                     }
 
                 }
@@ -427,7 +424,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
     public  void readuserImage() {
 
-        final String phone = HomeActivity.userphone;
+        final String phone = userphone;
         final String profile_image;
         DocumentSnapshot doc=null;
         DocumentReference user = firestoer.collection("users_images").document(phone);

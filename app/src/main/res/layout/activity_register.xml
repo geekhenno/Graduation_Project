@@ -64,7 +64,7 @@
             android:imeOptions="actionNext"
             android:textSize="20dp"
             android:inputType="number"
-            android:maxLength="12"
+            android:maxLength="9"
 
             />
     </android.support.design.widget.TextInputLayout>

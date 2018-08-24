@@ -228,10 +228,12 @@ public class AuthenticationActivity extends AppCompatActivity {
 
                         saveUserNametoFirebase();
                         saveImagetoFirebase();
-                        Toast.makeText(AuthenticationActivity.this,"Register successfully",Toast.LENGTH_SHORT).show();
+
                         startActivity(new Intent(AuthenticationActivity.this,HomeActivity.class));
                         myEditor.putBoolean("checksignin", true);
+                        myEditor.putString("userphone", phone);
                         myEditor.commit();
+                        Toast.makeText(AuthenticationActivity.this,"Register successfully",Toast.LENGTH_SHORT).show();
                         progressDialog.dismiss();
                         LoginActivity.loginActivity.finish();
                         finish();
@@ -286,7 +288,6 @@ public class AuthenticationActivity extends AppCompatActivity {
     {
 
 
-        String phone = HomeActivity.userphone;
         Map<String, Object> newContact = new HashMap<>();
         newContact.put("user_image", "def_profile.png");
         firestoer.collection("users_images").document(phone).set(newContact)
