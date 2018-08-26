@@ -112,7 +112,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         boolean cancel = false;
 
-        if (!isPasswordValid(_password)) {
+        if (!isPasswordValid(_password))
+        {
 
             Snackbar.make(view, "password should be at least 6 digits", Snackbar.LENGTH_LONG).show();
             cancel = true;

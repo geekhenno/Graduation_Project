@@ -1,8 +1,11 @@
 package com.hennonoman.waytracker.fragments_java;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -13,12 +16,20 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
+import android.support.v7.widget.PopupMenu;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,6 +53,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.hennonoman.waytracker.AuthenticationActivity;
 import com.hennonoman.waytracker.HomeActivity;
+import com.hennonoman.waytracker.LoginActivity;
 import com.hennonoman.waytracker.R;
 import com.hennonoman.waytracker.RegisterActivity;
 import com.squareup.picasso.Picasso;
@@ -88,12 +100,11 @@ public class Profile extends Fragment implements View.OnClickListener{
     TextView edit_profile_pic , change_password;
     private ProgressDialog mProgress;
     FirebaseFirestore firestoer;
-
-    SharedPreferences mySharedPreferences;
-    SharedPreferences.Editor editor;
-
+    PopupMenu popupMenu;
+    Fragment fragment;
+     FragmentTransaction ft;
+    FragmentManager fragmentManager;
     String imagePath;
-    String comparePath="",compareUserName="";
     private StorageReference mStorageReference;
     String setPath,  setUser;
 
@@ -121,6 +132,18 @@ public class Profile extends Fragment implements View.OnClickListener{
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager inputManager = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View currentFocusedView = activity.getCurrentFocus();
+        if (currentFocusedView != null)
+        {
+            inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     @Override
@@ -154,20 +177,8 @@ public class Profile extends Fragment implements View.OnClickListener{
 
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-
-    }
-
-
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-
-
 
 
     }
@@ -183,7 +194,6 @@ public class Profile extends Fragment implements View.OnClickListener{
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-
         image_profilePic= view.findViewById(R.id.image_profilePic);
         edit_user_name=view.findViewById(R.id.edit_user_name);
         save_edit_profile= view.findViewById(R.id.save_edit_profile);
@@ -197,12 +207,13 @@ public class Profile extends Fragment implements View.OnClickListener{
         edit_profile_pic.setOnClickListener(this);
 
          firestoer = FirebaseFirestore.getInstance();
-        mStorageReference = FirebaseStorage.getInstance().getReference();
+         mStorageReference = FirebaseStorage.getInstance().getReference();
          edit_user_name.setEnabled(false);
         setProfile();
        edit_user_name.setText(setUser);
       image_profilePic.setImageDrawable(HomeActivity.navImage.getDrawable());
 
+    //    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
          return view;
     }
@@ -236,6 +247,7 @@ public class Profile extends Fragment implements View.OnClickListener{
         mListener = null;
     }
 
+
     @Override
     public void onClick(View view) {
 
@@ -245,7 +257,7 @@ public class Profile extends Fragment implements View.OnClickListener{
             case R.id.icon_user_name:
 
                 edit_user_name.setEnabled(true);
-
+                showKeyboard();
                 break;
 
             case R.id.save_edit_profile:
@@ -261,17 +273,22 @@ public class Profile extends Fragment implements View.OnClickListener{
                 if (!hasReadandWriteStorgePermission())
                 {
                     requestReadAndWriteStorage();
-
                 }
-                changeProfilePic();
+                showPop(R.menu.profile_image_menu,edit_profile_pic);
 
 
                 break;
 
             case R.id.change_password:
-               // Toast.makeText(getContext(), "change_password", Toast.LENGTH_SHORT).show();
-               readuserImage();
-               readUserName();
+
+                    fragment = new ChangePasswordFragmant();
+                    fragmentManager = getActivity().getSupportFragmentManager();
+                    ft = fragmentManager.beginTransaction();
+                    ft.addToBackStack(null);
+                    ft.replace(R.id.content_frame,fragment);
+                    ft.commit();
+
+
                 break;
 
 
@@ -413,6 +430,7 @@ public class Profile extends Fragment implements View.OnClickListener{
                          navImage.setImageURI(resultUri);
                          image_profilePic.setImageURI(resultUri);
                          image_profilePic.setImageAlpha(0);
+                         resultUri=null;
 
                     }
                 })
@@ -529,6 +547,73 @@ public class Profile extends Fragment implements View.OnClickListener{
     }
 
 
+public void showKeyboard()
+{
+    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+
+}
+
+
+
+    public void showPop(int id, View v)
+    {
+
+        ContextThemeWrapper ctw = new ContextThemeWrapper(getContext(), R.style.CustomPopupTheme);
+        popupMenu = new PopupMenu(ctw,v);
+        popupMenu.inflate(id);
+        popupMenu.show();
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+
+                switch (menuItem.getItemId())
+                {
+
+                    case R.id.change_pic:
+
+                        changeProfilePic();
+
+                        break;
+
+
+                    case R.id.remove_pic:
+
+
+                        ImageView navImage =  HomeActivity.headerView.findViewById(R.id.user_image);
+                        navImage.setImageResource(R.drawable.def_profile);
+                        image_profilePic.setImageResource(R.drawable.def_profile);
+                        image_profilePic.setImageAlpha(0);
+
+                        String phone = HomeActivity.userphone;
+                        Map<String, Object> newContact = new HashMap<>();
+                        newContact.put("user_image", "def_profile.png");
+                        firestoer.collection("users_images").document(phone).set(newContact)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                        break;
+
+                }
+
+
+                return false;
+            }
+        });
+
+
+
+    }
 
 
     /**

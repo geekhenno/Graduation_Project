@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
+import com.hennonoman.waytracker.fragments_java.ResetpassFragment;
+
 public class SmsListener extends BroadcastReceiver {
 
 
@@ -29,6 +31,7 @@ public class SmsListener extends BroadcastReceiver {
                         msg_from = msgs[i].getOriginatingAddress();
                         String msgBody = msgs[i].getMessageBody();
                         AuthenticationActivity.codenumber.setText(msgBody.substring(0,6));
+
 
                     }
 

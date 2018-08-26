@@ -244,5 +244,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    public void getHelp(View view)
+    {
+
+        startActivity(new Intent(LoginActivity.this,HelpFragment.class));
+
+
+
+    }
+
 
 }

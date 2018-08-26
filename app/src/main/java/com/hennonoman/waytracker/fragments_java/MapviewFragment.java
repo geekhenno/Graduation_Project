@@ -6,12 +6,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
@@ -26,9 +24,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -43,7 +41,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -54,8 +51,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.hennonoman.waytracker.BuildConfig;
-import com.hennonoman.waytracker.HomeActivity;
-import com.hennonoman.waytracker.MapsActivity;
 import com.hennonoman.waytracker.R;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -115,7 +110,7 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
 
     // boolean flag to toggle the ui
     private Boolean mRequestingLocationUpdates;
-    private static final String TAG = MapsActivity.class.getSimpleName();
+    private static final String TAG = MapviewFragment.class.getSimpleName();
 
 
     // TODO: Rename and change types of parameters
@@ -162,7 +157,6 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_mapview, container, false);
-
 
         ButterKnife.bind(getActivity());
         init();

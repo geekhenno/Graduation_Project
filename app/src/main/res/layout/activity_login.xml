@@ -197,6 +197,7 @@
                 android:clickable="true"
                 android:textStyle="bold"
                 android:textSize="15dp"
+                android:onClick="getHelp"
                 android:fontFamily="@font/sukarregular"
 
 

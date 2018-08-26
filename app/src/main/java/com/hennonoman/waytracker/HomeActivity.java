@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -68,6 +69,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.hennonoman.waytracker.fragments_java.ChangePasswordFragmant;
 import com.hennonoman.waytracker.fragments_java.MapviewFragment;
 import com.hennonoman.waytracker.fragments_java.Profile;
 import com.karumi.dexter.Dexter;
@@ -92,8 +94,8 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     Toolbar toolbar;
     DrawerLayout drawerLayout;
      NavigationView navigationView;
-    Fragment fragment;
-    FragmentManager fragmentManager;
+    public static View headerView;
+
     FirebaseFirestore firestoer;
     FirebaseStorage storage;
     private StorageReference mStorage;
@@ -101,16 +103,21 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     //////
     SharedPreferences.Editor myEditor;
     SharedPreferences mySharedPreferences;
-    TextView username;
-    public static ImageView img;
+
     ///
+    TextView username;
+    ///
+    Fragment fragment;
+    FragmentManager fragmentManager;
     FragmentTransaction ft;
     ///
-    public static View headerView;
+
     ///
     public static ImageView navImage;
     public static  String pathProfile,usernameProfile;
     public static String userphone;
+
+    ////
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -139,13 +146,18 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     public void onBackPressed() {
 
 
+
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
 
             drawerLayout.closeDrawer(GravityCompat.START);
 
-        } else {
-            super.onBackPressed();
         }
+
+        else
+            {
+            super.onBackPressed();
+
+             }
 
 
     }
@@ -211,20 +223,35 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         navigationView.setCheckedItem(R.id.main_home);
 
 
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 fragment= fragmentManager.findFragmentById(R.id.content_frame);
+
+
+                ChangePasswordFragmant.hideKeyboard(HomeActivity.this);
+                Profile.hideKeyboard(HomeActivity.this);
+
+                for (int i =0 ; i < fragmentManager.getBackStackEntryCount() ;i++)
+                    fragmentManager.popBackStack();
+
+
+
                 ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+
+
                 switch (menuItem.getItemId())
                 {
 
                     case R.id.main_home:
-                            fragment = new MapviewFragment();
-                        if(fragment!=null)
-                        {
 
-                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+                        if(!(fragment instanceof MapviewFragment))
+                        {
+                            fragment = new MapviewFragment();
+                            ft = getSupportFragmentManager().beginTransaction();
+
                             ft.replace(R.id.content_frame,fragment);
                             ft.commit();
 
@@ -235,11 +262,11 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
                     case R.id.user_profile:
 
-                            fragment = new Profile();
-                        if(fragment!=null)
+                        if(!(fragment instanceof Profile))
                         {
 
-                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                            fragment = new Profile();
+                            ft = getSupportFragmentManager().beginTransaction();
                             ft.replace(R.id.content_frame,fragment);
                             ft.commit();
 
@@ -285,7 +312,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
 
 
-                    //.add(R.id.content_frame,fragment).commit();
+
 
 
                 }
@@ -448,18 +475,11 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                             gsReference = storage.getReferenceFromUrl("gs://way-tracker-c5180.appspot.com/images/"+pathProfile);
                              navImage =  headerView.findViewById(R.id.user_image);
 
-                              img = new ImageView(getApplicationContext());
-
-                              img.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
                             Glide.with(getApplicationContext())
                                     .using(new FirebaseImageLoader())
                                     .load(gsReference)
                                     .into(navImage);
-
-                          //  navImage.setImageDrawable(img.getDrawable());
-
-
 
 
 

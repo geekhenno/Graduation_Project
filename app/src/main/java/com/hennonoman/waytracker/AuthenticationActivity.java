@@ -63,11 +63,13 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
 
-
-        mAuth = FirebaseAuth.getInstance();
         codenumber= findViewById(R.id.codeNumber);
         reg= findViewById(R.id.regCode);
+
+
+        mAuth = FirebaseAuth.getInstance();
         firestoer = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
          phone = getIntent().getExtras().getString("phone");
          password = getIntent().getExtras().getString("pass");
@@ -108,7 +110,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
 
     }
