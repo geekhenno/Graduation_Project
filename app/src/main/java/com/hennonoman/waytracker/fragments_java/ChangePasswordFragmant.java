@@ -53,6 +53,8 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
     EditText old,new_pass,re_new_pass;
     FirebaseFirestore firestoer;
     String s_old ,s_new ,s_re_new;
+    ProgressDialog progressDialog;
+    String pass;
 
     public static void hideKeyboard(Activity activity) {
         InputMethodManager inputManager = (InputMethodManager) activity
@@ -83,7 +85,7 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
 
         changepass.setOnClickListener(this);
 
-
+        ReadSingleContact();
 
 
 
@@ -106,6 +108,7 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
 
 
     public void changePassword()
+
     {
         s_old = old.getText().toString();
         s_new = new_pass.getText().toString();
@@ -126,12 +129,23 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
             cancel = true;
         }
 
-        if (!cancel)
+        else if (!isMatchPassword(pass, s_old))
         {
 
+            Snackbar.make(changepass, "wrong password", Snackbar.LENGTH_LONG).show();
+            cancel = true;
+        }
+        else if (pass.equals(s_re_new))
+        {
 
-            ReadSingleContact();
+            Snackbar.make(changepass, "the new password should be different than old password", Snackbar.LENGTH_LONG).show();
+            cancel = true;
+        }
 
+        if (!cancel)
+        {
+            progressDialog = ProgressDialog.show(getContext(), "","Please Wait...", true);
+            saveToFirebase(s_re_new);
 
         }
 
@@ -153,6 +167,7 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
 
                         Toast.makeText(getContext(), "Changed Successfully", Toast.LENGTH_SHORT).show();
                         getActivity().onBackPressed();
+                        progressDialog.dismiss();
 
 
                     }
@@ -160,7 +175,7 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-
+                        progressDialog.dismiss();
                     }
                 });
 
@@ -182,24 +197,9 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
 
                     if(doc.exists())
 
-
-                        System.out.println("pass  = "+doc.getString("password"));
-                    System.out.println("old = "+old);
-                        if ( doc.getString("password").equals(s_old) )
-                        {
-
-
-                            saveToFirebase(s_new);
-
-
-
-                        }
-                        else
-                        {
-
-                            Toast.makeText(getContext(), "Wrong password", Toast.LENGTH_LONG).show();
-
-                        }
+                    {
+                        pass= doc.getString("password");
+                    }
 
 
                 }
@@ -209,7 +209,7 @@ public class ChangePasswordFragmant extends Fragment implements View.OnClickList
                     @Override
                     public void onFailure(@NonNull Exception e) {
 
-
+                        progressDialog.dismiss();
                     }
                 });
 

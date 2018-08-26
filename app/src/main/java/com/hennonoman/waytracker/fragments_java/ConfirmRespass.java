@@ -1,6 +1,7 @@
 package com.hennonoman.waytracker.fragments_java;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,7 +38,8 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
     Button changepass;
     EditText new_pass,re_new_pass;
     FirebaseFirestore firestoer;
-    String s_new ,s_re_new;
+    String s_new ,s_re_new , s_old;
+    ProgressDialog progressDialog;
 
 
 
@@ -67,6 +69,7 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
 
         firestoer = FirebaseFirestore.getInstance();
 
+        s_old=ResetpassFragment.pass;
 
         changepass.setOnClickListener(this);
 
@@ -109,10 +112,17 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
             Snackbar.make(changepass, "password doesn't match", Snackbar.LENGTH_LONG).show();
             cancel = true;
         }
+        else if (s_old.equals(s_re_new))
+        {
+
+            Snackbar.make(changepass, "the new password should be different than old password", Snackbar.LENGTH_LONG).show();
+            cancel = true;
+        }
 
         if (!cancel)
         {
 
+            progressDialog = ProgressDialog.show(getContext(), "","Please Wait...", true);
 
             saveToFirebase(s_re_new);
 
@@ -135,6 +145,7 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
                     @Override
                     public void onSuccess(Void aVoid) {
 
+                        progressDialog.dismiss();
                         Toast.makeText(getContext(), "Changed Successfully", Toast.LENGTH_SHORT).show();
                         getActivity().finish();
 
@@ -144,7 +155,7 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-
+                        progressDialog.dismiss();
                     }
                 });
 

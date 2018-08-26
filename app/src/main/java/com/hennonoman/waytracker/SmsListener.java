@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
+import com.hennonoman.waytracker.fragments_java.ConfirmRespass;
 import com.hennonoman.waytracker.fragments_java.ResetpassFragment;
 
 public class SmsListener extends BroadcastReceiver {
@@ -30,7 +31,12 @@ public class SmsListener extends BroadcastReceiver {
                         msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
                         msg_from = msgs[i].getOriginatingAddress();
                         String msgBody = msgs[i].getMessageBody();
+                        if( AuthenticationActivity.codenumber!=null)
                         AuthenticationActivity.codenumber.setText(msgBody.substring(0,6));
+
+                        if(  ResetpassFragment.editText!=null)
+                        ResetpassFragment.editText.setText(msgBody.substring(0,6));
+
 
 
                     }

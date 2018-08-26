@@ -134,13 +134,10 @@ public class RegisterActivity extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             // Specify the alert dialog title
             String titleText = "Are you sure this is your number ?";
-
             // Initialize a new foreground color span instance
             ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(getResources().getColor(R.color.colorTextDark));
-
             // Initialize a new spannable string builder instance
             SpannableStringBuilder ssBuilder = new SpannableStringBuilder(titleText);
-
             // Apply the text color span
             ssBuilder.setSpan(
                     foregroundColorSpan,

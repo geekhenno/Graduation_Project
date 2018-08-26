@@ -16,12 +16,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,6 +46,7 @@ import com.hennonoman.waytracker.AuthenticationActivity;
 import com.hennonoman.waytracker.HomeActivity;
 import com.hennonoman.waytracker.LoginActivity;
 import com.hennonoman.waytracker.R;
+import com.hennonoman.waytracker.RegisterActivity;
 import com.rilixtech.CountryCodePicker;
 
 import java.util.HashMap;
@@ -56,9 +62,9 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
     CountryCodePicker ccp;
     public static String number;
     String codeSent;
-      EditText editText;
+    public static EditText editText;
     ProgressDialog progressDialog;
-    String pass;
+    public static String pass;
 
 
     Fragment fragment;
@@ -87,7 +93,7 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
         mAuth = FirebaseAuth.getInstance();
 
 
-
+         pass="";
         continue_reset = view.findViewById(R.id.continue_reset);
         pnumber =view.findViewById(R.id.pnumber);
         ccp = view.findViewById(R.id.ccp);
@@ -126,6 +132,7 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Confirmation Code")
                 .setIcon(R.drawable.logo1)
+                .setCancelable(false)
                 .setPositiveButton("OK", null)
                 .setNegativeButton("cancel", null)
                 .setView(editText)
@@ -173,9 +180,16 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
 
+
+
+
+
+
+
         if(view.getId()==R.id.continue_reset)
 
         {
+
 
             number = pnumber.getText().toString();
 
@@ -184,10 +198,59 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
 
             else
                 {
-
                     number="+"+ccp.getSelectedCountryCode()+pnumber.getText().toString();
-                    progressDialog = ProgressDialog.show(getContext(), "","Please wait...", true);
-                    ReadSingleContact();
+                    android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getContext());
+                    // Specify the alert dialog title
+                    String titleText = "Are you sure this is your number ?";
+                    // Initialize a new foreground color span instance
+                    ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(getResources().getColor(R.color.colorTextDark));
+                    // Initialize a new spannable string builder instance
+                    SpannableStringBuilder ssBuilder = new SpannableStringBuilder(titleText);
+                    // Apply the text color span
+                    ssBuilder.setSpan(
+                            foregroundColorSpan,
+                            0,
+                            titleText.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    );
+
+                    // Set the alert dialog title using spannable string builder
+                    builder.setTitle(ssBuilder);
+                    //  builder.setMessage("Are you sure this is your number ?");
+                    //builder.set
+                    TextView ph = new TextView(getContext());
+                    ph.setText(number);
+                    ph.setTextSize(22);
+                    ph.setTextColor(getResources().getColor(R.color.colorText));
+                    ph.setGravity(Gravity.CENTER);
+
+                    builder.setView(ph);
+                    builder.setView(ph);
+
+
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            progressDialog = ProgressDialog.show(getContext(), "","Please wait...", true);
+                            ReadSingleContact();
+
+                        }
+                    });
+                    builder.setNegativeButton("Edit", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            dialogInterface.dismiss();
+                            pnumber.requestFocus();
+                        }
+                    });
+                    builder.show();
+
+
+
+
 
             }
 
