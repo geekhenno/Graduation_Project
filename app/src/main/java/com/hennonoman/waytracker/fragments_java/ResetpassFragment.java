@@ -7,6 +7,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -233,9 +235,13 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
                         public void onClick(DialogInterface dialog, int which) {
 
 
-                            progressDialog = ProgressDialog.show(getContext(), "","Please wait...", true);
-                            ReadSingleContact();
+                            if(!checkConnection())
+                                Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
 
+                            else {
+                                progressDialog = ProgressDialog.show(getContext(), "", "Please wait...", true);
+                                ReadSingleContact();
+                            }
                         }
                     });
                     builder.setNegativeButton("Edit", new DialogInterface.OnClickListener() {
@@ -425,6 +431,15 @@ public class ResetpassFragment extends Fragment implements View.OnClickListener{
                 });
     }
 
+
+    public boolean checkConnection()
+    {
+        ConnectivityManager cm =
+                (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
 
 
 

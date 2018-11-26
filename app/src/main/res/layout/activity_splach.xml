@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,43 +7,61 @@
     tools:context=".SplachActivity">
 
 
-
-
-        <ImageView
-            android:id="@+id/logo1"
-            android:src="@drawable/logo1"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:layout_marginTop="20dp"
-            android:layout_gravity="center"
-             />
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/logo1"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Way  Tracker"
-            android:textSize="90dp"
-            android:textAlignment="center"
-            android:fontFamily="@font/leoscar_sans_serif"
-            android:textColor="#006064" />
+    <ImageView
+        android:id="@+id/logo1"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/logo1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
-        android:textSize="12dp"
-        android:textStyle="normal"
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/logo1"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/leoscar_sans_serif"
+        android:gravity="center"
+        android:text="Way\nTracker"
+        android:textAlignment="center"
+        android:textColor="#006064"
+        android:textSize="90dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.633"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logo1"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+    <TextView
+        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:textColor="#006064"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:fontFamily="@font/leoscar_sans_serif"
         android:gravity="center"
-        android:layout_marginBottom="4dp"
-        android:text="All Rights Reserved © 2018 HENNO" />
+        android:text="All Rights Reserved © 2018 HENNO"
+        android:textColor="#006064"
+        android:textSize="12dp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

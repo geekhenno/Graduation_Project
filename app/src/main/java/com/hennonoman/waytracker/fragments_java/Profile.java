@@ -22,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.PopupMenu;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,6 +70,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.support.constraint.Constraints.TAG;
 
 
@@ -97,7 +99,7 @@ public class Profile extends Fragment implements View.OnClickListener{
     ImageView icon_user_name;
     EditText edit_user_name;
     Button save_edit_profile;
-    TextView edit_profile_pic , change_password;
+    TextView edit_profile_pic , change_password , show_user_name, show_phone,show_phone_under;
     private ProgressDialog mProgress;
     FirebaseFirestore firestoer;
     PopupMenu popupMenu;
@@ -107,6 +109,8 @@ public class Profile extends Fragment implements View.OnClickListener{
     String imagePath;
     private StorageReference mStorageReference;
     String setPath,  setUser;
+
+    public static Activity activity;
 
     public static Uri mImageUri=null;
 
@@ -185,7 +189,8 @@ public class Profile extends Fragment implements View.OnClickListener{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getActivity().setTitle("Profile");
+        activity=getActivity();
+       activity.setTitle("Profile");
     }
 
     @Override
@@ -196,24 +201,37 @@ public class Profile extends Fragment implements View.OnClickListener{
 
         image_profilePic= view.findViewById(R.id.image_profilePic);
         edit_user_name=view.findViewById(R.id.edit_user_name);
+        show_user_name=view.findViewById(R.id.show_user_name);
+        show_phone=view.findViewById(R.id.show_phone);
+        show_phone_under=view.findViewById(R.id.show_phone_under);
         save_edit_profile= view.findViewById(R.id.save_edit_profile);
         edit_profile_pic = view.findViewById(R.id.edit_profile_pic);
-        change_password=view.findViewById(R.id.change_password);
+     //   edit_user_name.setOnClickListener(this);
+//        change_password=view.findViewById(R.id.change_password);
         icon_user_name=view.findViewById(R.id.icon_user_name);
-        mProgress = new ProgressDialog(getContext());
+//        mProgress = new ProgressDialog(getContext());
         save_edit_profile.setOnClickListener(this);
         icon_user_name.setOnClickListener(this);
-        change_password.setOnClickListener(this);
+//        change_password.setOnClickListener(this);
         edit_profile_pic.setOnClickListener(this);
-
+//
          firestoer = FirebaseFirestore.getInstance();
          mStorageReference = FirebaseStorage.getInstance().getReference();
-         edit_user_name.setEnabled(false);
         setProfile();
        edit_user_name.setText(setUser);
+       show_user_name.setText(setUser);
+       show_phone.setText(HomeActivity.userphone);
+        show_phone_under.setText(HomeActivity.userphone);
       image_profilePic.setImageDrawable(HomeActivity.navImage.getDrawable());
+      image_profilePic.setImageBitmap(HomeActivity.bitmap_profile);
 
-    //    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+
+
+
+
+
 
          return view;
     }
@@ -248,22 +266,21 @@ public class Profile extends Fragment implements View.OnClickListener{
     }
 
 
+
     @Override
     public void onClick(View view) {
 
 
         switch (view.getId())
         {
-            case R.id.icon_user_name:
+                case R.id.icon_user_name:
 
-                edit_user_name.setEnabled(true);
+                    edit_user_name.setEnabled(true);
                 showKeyboard();
                 break;
 
             case R.id.save_edit_profile:
                 edit_user_name.setEnabled(false);
-
-                uploadImage();
                 saveUserNametoFirebase();
 
                 break;
@@ -278,19 +295,19 @@ public class Profile extends Fragment implements View.OnClickListener{
 
 
                 break;
-
-            case R.id.change_password:
-
-                    fragment = new ChangePasswordFragmant();
-                    fragmentManager = getActivity().getSupportFragmentManager();
-                    ft = fragmentManager.beginTransaction();
-                    ft.addToBackStack(null);
-                    ft.replace(R.id.content_frame,fragment);
-                    ft.commit();
-
-
-                break;
-
+//
+//            case R.id.change_password:
+//
+//                    fragment = new ChangePasswordFragmant();
+//                    fragmentManager = getActivity().getSupportFragmentManager();
+//                    ft = fragmentManager.beginTransaction();
+//                    ft.addToBackStack(null);
+//                    ft.replace(R.id.content_frame,fragment);
+//                    ft.commit();
+//
+//
+//                break;
+//
 
 
         }
@@ -323,11 +340,13 @@ public class Profile extends Fragment implements View.OnClickListener{
 
 
 
-            if (resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK)
+            {
 
 
                 resultUri = result.getUri();
                 image_profilePic.setImageURI(resultUri);
+                uploadImage();
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
@@ -363,7 +382,7 @@ public class Profile extends Fragment implements View.OnClickListener{
         if( resultUri != null)
         {
 
-            mProgress.setMessage("Saving...");
+            mProgress = ProgressDialog.show(getContext(), "","Saving...", true);
              mProgress.show();
 
                 final StorageReference filepath = mStorageReference.child("images").
@@ -396,6 +415,7 @@ public class Profile extends Fragment implements View.OnClickListener{
                         TextView navUsername =  HomeActivity.headerView.findViewById(R.id.username);
                         navUsername.setText(user_name);
                         HomeActivity.usernameProfile=user_name;
+                        show_user_name.setText(user_name);
 
 
 
@@ -614,6 +634,8 @@ public void showKeyboard()
 
 
     }
+
+    
 
 
     /**

@@ -5,11 +5,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
@@ -17,31 +19,36 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.hennonoman.waytracker.PwdStrength.PasswordStrength;
 import com.rilixtech.Country;
 import com.rilixtech.CountryCodePicker;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class RegisterActivity extends AppCompatActivity {
+
+public class RegisterActivity extends AppCompatActivity implements TextWatcher {
 
 
     public void signin(View view) {
@@ -73,18 +80,16 @@ public class RegisterActivity extends AppCompatActivity {
         password_reg = findViewById(R.id.password_reg);
         repassword_reg = findViewById(R.id.repassword_reg);
 
+        password_reg.addTextChangedListener(this);
+
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         ////////////////
 
 
-        if (!hasReadSmsPermission()) {
-            requestReadAndSendSmsPermission();
 
-        }
-        if (!hasReadandWriteStorgePermission()) {
-            requestReadAndWriteStorage();
 
-        }
+
+
 
         mDatabase = FirebaseDatabase.getInstance().getReference("users");
         firestoer = FirebaseFirestore.getInstance();
@@ -127,7 +132,9 @@ public class RegisterActivity extends AppCompatActivity {
             cancel = true;
         }
 
-        if (cancel) {
+        if (cancel)
+        {
+
 
         } else {
 
@@ -164,8 +171,13 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    progressDialog = ProgressDialog.show(RegisterActivity.this, "", "Please Wait...", true);
-                    ReadSingleContact();
+                    if(!checkConnection())
+                        Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
+
+                    else {
+                        progressDialog = ProgressDialog.show(RegisterActivity.this, "", "Please Wait...", true);
+                        ReadSingleContact();
+                    }
 
                 }
             });
@@ -201,7 +213,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-    private void ReadSingleContact() {
+    private void ReadSingleContact()
+    {
 
         DocumentSnapshot doc = null;
         DocumentReference user = firestoer.collection("users").document(fullphone);
@@ -213,7 +226,7 @@ public class RegisterActivity extends AppCompatActivity {
                     DocumentSnapshot doc = task.getResult();
 
                     if (doc.exists()) {
-                        System.out.println("doc  --- - --" + doc);
+
                         if (doc.getString("phone").equalsIgnoreCase(fullphone)) {
                             progressDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "phone number already exist", Toast.LENGTH_LONG).show();
@@ -250,94 +263,67 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Optional informative alert dialog to explain the user why the app needs the Read/Send SMS permission
-     */
-    private void showRequestPermissionsInfoAlertDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Requesting SMS permission");
-        builder.setMessage("The app will now request your permission to send and read SMS related services.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                requestReadAndSendSmsPermission();
-            }
-        });
-        builder.show();
+
+
+
+
+
+    @Override
+    public void afterTextChanged(Editable s) {
     }
-
-    /**
-     * Runtime permission shenanigans
-     */
-    private boolean hasReadSmsPermission() {
-        return ContextCompat.checkSelfPermission(RegisterActivity.this,
-                android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(RegisterActivity.this,
-                        android.Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestReadAndSendSmsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(RegisterActivity.this, android.Manifest.permission.READ_SMS)) {
-            Log.d("SplachActivity", "shouldShowRequestPermissionRationale(), no permission requested");
-            return;
-        }
-        ActivityCompat.requestPermissions(RegisterActivity.this, new String[]{android.Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS},
-                0);
-    }
-
-
-    private boolean hasReadandWriteStorgePermission() {
-        return ContextCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestReadAndWriteStorage() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (ContextCompat.checkSelfPermission(RegisterActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(RegisterActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(RegisterActivity.this,
-                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                        1);
-            } else {
-            }
-        }
-
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after)
+    {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onTextChanged(CharSequence s, int start, int before, int count)
+    {
+        updatePasswordStrengthView(s.toString());
+    }
 
-        switch(requestCode)
+    private void updatePasswordStrengthView(String password)
+    {
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        TextView strengthView = (TextView) findViewById(R.id.password_strength);
+        if (TextView.VISIBLE != strengthView.getVisibility())
+            return;
+
+        if (password.isEmpty())
         {
-            case 1:
-                if (grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
+            strengthView.setText("");
+            progressBar.setProgress(0);
+            progressBar.getProgressDrawable().setColorFilter(Color.GRAY, android.graphics.PorterDuff.Mode.SRC_IN);
 
-                }
-                else
-                {
-                    closeNow();
-                }
-                break;
+            return;
+        }
+
+        PasswordStrength str = PasswordStrength.calculateStrength(password);
+        strengthView.setText(str.getText(this));
+        strengthView.setTextColor(str.getColor());
+
+        progressBar.getProgressDrawable().setColorFilter(str.getColor(), android.graphics.PorterDuff.Mode.SRC_IN);
+        if (str.getText(this).equals("Weak")) {
+            progressBar.setProgress(25);
+        } else if (str.getText(this).equals("Medium")) {
+            progressBar.setProgress(50);
+        } else if (str.getText(this).equals("Strong")) {
+            progressBar.setProgress(75);
+        } else {
+            progressBar.setProgress(100);
         }
     }
-    private void closeNow() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-        {
-            finishAffinity();
-        }
-
-        else
-        {
-            finish();
-        }
+    public boolean checkConnection()
+    {
+        ConnectivityManager cm =
+                (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
+
+
 
 
 }

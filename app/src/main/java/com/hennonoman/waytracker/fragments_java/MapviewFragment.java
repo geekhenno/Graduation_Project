@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -19,12 +22,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +46,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -50,7 +56,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.hennonoman.waytracker.BuildConfig;
+import com.hennonoman.waytracker.HelperClasses.GroupInfo;
+import com.hennonoman.waytracker.HomeActivity;
 import com.hennonoman.waytracker.R;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -58,6 +71,8 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -76,7 +91,7 @@ import butterknife.ButterKnife;
  * Use the {@link MapviewFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
+public class MapviewFragment extends Fragment implements OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -89,16 +104,16 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
 
     double latitude;
     double longitude;
-    String address="";
+    String address = "";
     private GoogleMap mMap;
     // location last updated time
     private String mLastUpdateTime;
     // location updates interval - 3sec
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 3000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS =  1000 * 10;
     // fastest updates interval - 3 sec
     // location updates will be received if another app is requesting the locations
     // than your app can handle
-    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 3000;
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000*5;
     private static final int REQUEST_CHECK_SETTINGS = 100;
     // bunch of location related apis
     private FusedLocationProviderClient mFusedLocationClient;
@@ -111,6 +126,12 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
     // boolean flag to toggle the ui
     private Boolean mRequestingLocationUpdates;
     private static final String TAG = MapviewFragment.class.getSimpleName();
+//
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+
+
+    public static Activity activity;
 
 
     // TODO: Rename and change types of parameters
@@ -119,6 +140,7 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
     SupportMapFragment mapFragment;
     private FragmentActivity myContext;
     private MapviewInteractionListener mListener;
+   public static LatLng location;
 
     public MapviewFragment() {
         // Required empty public constructor
@@ -160,9 +182,10 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
 
         ButterKnife.bind(getActivity());
         init();
-           restoreValuesFromBundle(savedInstanceState);
-           startLocationButtonClick();
-            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        restoreValuesFromBundle(savedInstanceState);
+        startLocationButtonClick();
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
 
         return view;
     }
@@ -173,20 +196,55 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
         super.onViewCreated(view, savedInstanceState);
 
 
-
         mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map_view);
         mapFragment.getMapAsync(this);
-        getActivity().setTitle("Home");
 
-        }
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference(HomeActivity.userphone);
 
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+  //              GroupInfo value = dataSnapshot.getValue(GroupInfo.class);
+//                Toast.makeText(getContext(), value.latit, Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w("Faild", "Failed to read value.", error.toException());
+            }
+        });
+
+        activity=getActivity();
+        activity.setTitle("Home");
+
+
+
+    }
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap)
-    {
-        mMap=googleMap;
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+        mMap.setMinZoomPreference(15);
+
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -199,7 +257,7 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        myContext=(FragmentActivity) context;
+        myContext = (FragmentActivity) context;
         if (context instanceof MapviewInteractionListener) {
             mListener = (MapviewInteractionListener) context;
         } else {
@@ -209,12 +267,10 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
     }
 
     @Override
-    public void onDetach()
-    {
+    public void onDetach() {
         super.onDetach();
         mListener = null;
     }
-
 
 
     private void init() {
@@ -268,24 +324,53 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
      * Update the UI displaying the location data
      * and toggling the buttons
      */
-    private void updateLocationUI()
-    {
+    private void updateLocationUI() {
 
-        if (mCurrentLocation != null)
-        {
+        //   int height = (int) convertDpToPixel(56,getContext());
+        // int width = (int) convertDpToPixel(56,getContext());
 
 
-            mMap.clear();
+//        Bitmap resizedBitmap = Bitmap.createScaledBitmap(HomeActivity.bitmap_profile, 100, 100, false);
+        if (mCurrentLocation != null) {
             latitude = mCurrentLocation.getLatitude();
-            longitude =mCurrentLocation.getLongitude();
+            longitude = mCurrentLocation.getLongitude();
             getAddress();
-            LatLng location = new LatLng(latitude, longitude);
-            mMap.addMarker(new MarkerOptions().position(location).title(address));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,15));
+             location = new LatLng(latitude, longitude);
+
+             myRef.addValueEventListener(new ValueEventListener() {
+                 @Override
+                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                     DataSnapshot groupsSnapshot = dataSnapshot.child("groups");
+                     Iterable<DataSnapshot> contactChildren = groupsSnapshot.getChildren();
+                     for (DataSnapshot group : contactChildren)
+                     {
+                         GroupInfo gInfo = new GroupInfo();
+                         gInfo.setGroupId(group.child("groupId").getValue().toString());
+                         myRef.child("groups").child(gInfo.getGroupId()).child("latit").setValue(latitude);
+                         myRef.child("groups").child(gInfo.getGroupId()).child("longi").setValue(longitude);
+                     }
+
+
+                 }
+
+                 @Override
+                 public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                 }
+             });
+
+          //  myRef.child("groups").child("-LM_d49dZ-Q7Tc6oTiuW").child("longi").setValue(longitude);
+            // mMap.clear();
+//            Marker marker= mMap.addMarker(new MarkerOptions().position(location)
+//                  .flat(true).title(HomeActivity.usernameProfile));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
             //Toast.makeText(this, "Last updated on: "+mLastUpdateTime, Toast.LENGTH_SHORT).show();
 
         }
     }
+
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -305,6 +390,11 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         Log.e(TAG, "User agreed to make required location settings changes.");
+                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                            return;
+                        }
+                        mMap.setMyLocationEnabled(true);
                         // Nothing to do. startLocationupdates() gets called in onResume again.
                         break;
                     case Activity.RESULT_CANCELED:
@@ -336,6 +426,7 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                                 mLocationCallback, Looper.myLooper());
 
+                        mMap.setMyLocationEnabled(true);
                         updateLocationUI();
                     }
                 })
@@ -443,7 +534,8 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
     public void onResume() {
         super.onResume();
 
-        if (mRequestingLocationUpdates && checkPermissions()) {
+        if (mRequestingLocationUpdates && checkPermissions())
+        {
             startLocationUpdates();
         }
 
@@ -540,6 +632,31 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback   {
 
 
 
+
+    private void drawCircle(LatLng point){
+
+        // Instantiating CircleOptions to draw a circle around the marker
+        CircleOptions circleOptions = new CircleOptions();
+
+        // Specifying the center of the circle
+        circleOptions.center(point);
+
+        // Radius of the circle
+        circleOptions.radius(100);
+
+        // Border color of the circle
+        circleOptions.strokeColor(Color.BLACK);
+
+        // Fill color of the circle
+        circleOptions.fillColor(0x30ff0000);
+
+        // Border width of the circle
+        circleOptions.strokeWidth(2);
+
+        // Adding the circle to the GoogleMap
+        mMap.addCircle(circleOptions);
+
+    }
     public interface MapviewInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

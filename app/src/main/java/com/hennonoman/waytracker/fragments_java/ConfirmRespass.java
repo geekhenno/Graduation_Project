@@ -3,6 +3,7 @@ package com.hennonoman.waytracker.fragments_java;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,12 +11,16 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,12 +31,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hennonoman.waytracker.HomeActivity;
+import com.hennonoman.waytracker.PwdStrength.PasswordStrength;
 import com.hennonoman.waytracker.R;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConfirmRespass extends Fragment implements View.OnClickListener {
+public class ConfirmRespass extends Fragment implements View.OnClickListener ,TextWatcher {
 
 
 
@@ -40,6 +46,8 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
     FirebaseFirestore firestoer;
     String s_new ,s_re_new , s_old;
     ProgressDialog progressDialog;
+    ProgressBar progressBar;
+    TextView strengthView;
 
 
 
@@ -71,8 +79,12 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
 
         s_old=ResetpassFragment.pass;
 
-        changepass.setOnClickListener(this);
 
+
+        new_pass.addTextChangedListener(this);
+        changepass.setOnClickListener(this);
+        progressBar = view.findViewById(R.id.progressBar);
+        strengthView =  view.findViewById(R.id.password_strength);
 
 
 
@@ -178,6 +190,54 @@ public class ConfirmRespass extends Fragment implements View.OnClickListener {
             changePassword();
 
     }
+
+
+    @Override
+    public void afterTextChanged(Editable s) {
+    }
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after)
+    {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count)
+    {
+        updatePasswordStrengthView(s.toString());
+    }
+
+    private void updatePasswordStrengthView(String password)
+    {
+
+
+        if (TextView.VISIBLE != strengthView.getVisibility())
+            return;
+
+        if (password.isEmpty())
+        {
+            strengthView.setText("");
+            progressBar.setProgress(0);
+            progressBar.getProgressDrawable().setColorFilter(Color.GRAY, android.graphics.PorterDuff.Mode.SRC_IN);
+
+            return;
+        }
+
+        PasswordStrength str = PasswordStrength.calculateStrength(password);
+        strengthView.setText(str.getText(getContext()));
+        strengthView.setTextColor(str.getColor());
+
+        progressBar.getProgressDrawable().setColorFilter(str.getColor(), android.graphics.PorterDuff.Mode.SRC_IN);
+        if (str.getText(getContext()).equals("Weak")) {
+            progressBar.setProgress(25);
+        } else if (str.getText(getContext()).equals("Medium")) {
+            progressBar.setProgress(50);
+        } else if (str.getText(getContext()).equals("Strong")) {
+            progressBar.setProgress(75);
+        } else {
+            progressBar.setProgress(100);
+        }
+    }
+
 
 
 

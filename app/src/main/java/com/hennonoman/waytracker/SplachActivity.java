@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -18,6 +19,17 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class SplachActivity extends AppCompatActivity {
@@ -25,8 +37,11 @@ public class SplachActivity extends AppCompatActivity {
     SharedPreferences mySharedPreferences;
      boolean status;
      long time=2500;
+    FirebaseFirestore firestoer;
+    public static ArrayList<String> allUsers;
 
-    public void setLocale() {
+    public void setLocale()
+    {
         Locale locale = new Locale("en");
         Locale.setDefault(locale);
         Configuration config = new Configuration();
@@ -38,11 +53,24 @@ public class SplachActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        allUsers= new ArrayList<>();
+        firestoer = FirebaseFirestore.getInstance();
+        ReadSingleContact();
+        // for full screen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN , WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_splach);
 
+
+
+        //set language
         setLocale();
+
+
         mySharedPreferences = getSharedPreferences("signinstatus", Context.MODE_PRIVATE);
         myEditor =mySharedPreferences.edit();
 
@@ -61,6 +89,7 @@ public class SplachActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        //check sign in or not
        status=mySharedPreferences.getBoolean("checksignin", false);
 
     }
@@ -89,6 +118,28 @@ public class SplachActivity extends AppCompatActivity {
 
             }
         }.start();
+
+    }
+
+
+    private void ReadSingleContact() {
+
+
+        firestoer.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("IDs", document.getId() + " => " + document.getData());
+                                allUsers.add(document.getId());
+                            }
+                        } else {
+                            Log.d("IDsErr", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
 
     }
 

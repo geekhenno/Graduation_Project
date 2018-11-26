@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-  >
+    android:orientation="vertical"
+
+    android:layout_height="match_parent">
+
 
     <RelativeLayout
         android:layout_marginTop="?attr/actionBarSize"
@@ -15,7 +18,7 @@
         android:paddingBottom="20dp">
 
         <RelativeLayout
-            android:id="@+id/imgUser"
+            android:id="@+id/image_group_r"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -25,9 +28,9 @@
 
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/image_profilePic"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:id="@+id/image_group"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_margin="9dp"
 
                 />
@@ -36,79 +39,44 @@
 
 
         <TextView
-            android:id="@+id/edit_profile_pic"
+            android:id="@+id/selectimagegroup"
             android:layout_marginTop="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:layout_centerHorizontal="true"
-            android:text="Edit"
-            android:layout_below="@+id/imgUser"
+            android:text="select"
+            android:layout_below="@+id/image_group_r"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="14sp" />
 
 
-        <LinearLayout
-
-            android:layout_marginTop="15dp"
-            android:id="@+id/edituser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/edit_profile_pic"
-            >
 
 
-
-
-
-
-
-            <ImageView
-                android:layout_gravity="center"
-                android:id="@+id/icon_user_name"
-                android:layout_width="22dp"
-                android:layout_margin="5dp"
-                android:layout_height="match_parent"
-                android:scaleType="centerInside"
-                android:src="@drawable/editicon"
-
-                />
 
 
             <EditText
-
-                android:gravity="center"
                 android:layout_gravity="center"
                 android:padding="5dp"
-                android:enabled="false"
                 android:maxLength="20"
                 android:inputType="textPersonName"
-                android:background="@android:color/transparent"
-                android:id="@+id/edit_user_name"
-                android:layout_width="wrap_content"
+                android:id="@+id/titlegroup"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Joey Tribbiani"
+                android:hint="title"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:textColorHint="@color/grayColor"
                 android:textColor="@color/white"
-                android:textSize="32sp" />
-
-        </LinearLayout>
-
+                android:layout_below="@id/selectimagegroup"
+                android:textSize="28dp" />
 
 
 
-        <TextView
-            android:id="@+id/show_phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/edituser"
-            android:layout_centerHorizontal="true"
-            android:text="new york, usa"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+
+
+
 
 
 
@@ -124,7 +92,7 @@
         android:layout_below="@+id/rellay1">
 
         <LinearLayout
-                android:id="@+id/linear_info"
+            android:id="@+id/linear_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
@@ -140,7 +108,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="User name"
+                    android:text="Select users"
                     android:textColor="@color/colorTextDark"
                     android:textSize="13sp" />
 
@@ -163,34 +131,7 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Phone"
-                    android:textColor="@color/colorTextDark"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/show_phone_under"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="+1-202-555-0157"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="15dp"
-                    android:background="@color/grey" />
-
-            </LinearLayout>
 
 
 
@@ -200,16 +141,18 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/save_edit_profile"
-            android:layout_width="130dp"
-            android:layout_height="45dp"
-            android:layout_marginTop="30dp"
+            android:id="@+id/creategroupfragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
             android:textSize="20dp"
             android:layout_centerHorizontal="true"
+            android:gravity="center"
             android:layout_below="@+id/linear_info"
             android:textColor="#fff"
             android:fontFamily="@font/sukarregular"
-            android:text="save"
+            android:text="Create"
+            android:layout_alignParentBottom="true"
             android:background="@drawable/login_button"
             android:textAllCaps="false"
             />
@@ -219,3 +162,5 @@
     </RelativeLayout>
 
 </RelativeLayout>
+
+

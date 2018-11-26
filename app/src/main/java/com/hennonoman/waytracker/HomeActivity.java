@@ -10,11 +10,16 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Looper;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -24,6 +29,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -35,12 +41,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -64,13 +74,24 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.hennonoman.waytracker.HelperClasses.GroupInfo;
+import com.hennonoman.waytracker.HelperClasses.list;
 import com.hennonoman.waytracker.fragments_java.ChangePasswordFragmant;
+import com.hennonoman.waytracker.fragments_java.Friends_Frgament;
+import com.hennonoman.waytracker.fragments_java.GroupFragment;
+import com.hennonoman.waytracker.fragments_java.JoinGroup;
 import com.hennonoman.waytracker.fragments_java.MapviewFragment;
+import com.hennonoman.waytracker.fragments_java.MyGroups;
 import com.hennonoman.waytracker.fragments_java.Profile;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -83,6 +104,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -107,17 +129,32 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     ///
     TextView username;
     ///
-    Fragment fragment;
+    public static Fragment fragment ,fragment2;
     FragmentManager fragmentManager;
     FragmentTransaction ft;
     ///
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
     ///
     public static ImageView navImage;
+    public static Bitmap bitmap_profile;
     public static  String pathProfile,usernameProfile;
     public static String userphone;
 
     ////
+
+    public static ArrayList<String> frindes;
+    public static  ArrayAdapter frindesAdabter;
+
+
+    //
+    public static String[] from;
+    public static Cursor cursor;
+    public static SimpleCursorAdapter simpleCursorAdapt;
+
+    String currentTag;
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -125,6 +162,37 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         switch (item.getItemId()) {
             case R.id.create_group:
 
+
+                if(!(fragment instanceof GroupFragment))
+                {
+                    fragment = new GroupFragment();
+                    ft = getSupportFragmentManager().beginTransaction();
+                    ft.addToBackStack(null);
+                    ft.replace(R.id.content_frame,fragment);
+                    ft.commit();
+                }
+
+                break;
+
+            case R.id.join_group:
+
+
+                if(!(fragment instanceof JoinGroup))
+                {
+                    fragment = new JoinGroup();
+                    ft = getSupportFragmentManager().beginTransaction();
+                    ft.addToBackStack(null);
+                    ft.replace(R.id.content_frame,fragment);
+                    ft.commit();
+                }
+
+                break;
+
+
+            case R.id.menu_refresh:
+
+
+                Toast.makeText(this, "Hi refresh", Toast.LENGTH_SHORT).show();
 
                 break;
 
@@ -167,24 +235,27 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mySharedPreferences = getSharedPreferences("signinstatus", Context.MODE_PRIVATE);
+        myEditor = mySharedPreferences.edit();
 
+
+
+
+        frindes=new ArrayList<>();
+        userphone = mySharedPreferences.getString("userphone","");
 
         toolbar = findViewById(R.id.mapToolBar);
         setSupportActionBar(toolbar);
-
-        fragment = new MapviewFragment();
-
-         ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame,fragment);
-        ft.commit();
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference(userphone);
 
         fragmentManager = getSupportFragmentManager();
 
 
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        mySharedPreferences = getSharedPreferences("signinstatus", Context.MODE_PRIVATE);
-        myEditor = mySharedPreferences.edit();
+
         ButterKnife.bind(this);
 
 
@@ -193,10 +264,14 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         navigationView.setItemIconTintList(null);
 
         firestoer = FirebaseFirestore.getInstance();
-        userphone = mySharedPreferences.getString("userphone","");
 
-       readUserName();
+
+
+
+
+        readUserName();
         readuserImage();
+        getFrineds();
 
 
 
@@ -214,7 +289,9 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
 
 
-
+        fragment = new MapviewFragment();
+        openFragment(fragment,"one");
+        currentTag="one";
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_navigation_drawer, R.string.close_navigation_drawer);
         drawerLayout.addDrawerListener(toggle);
@@ -227,9 +304,6 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                fragment= fragmentManager.findFragmentById(R.id.content_frame);
-
-
                 ChangePasswordFragmant.hideKeyboard(HomeActivity.this);
                 Profile.hideKeyboard(HomeActivity.this);
 
@@ -238,7 +312,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
 
 
-                ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+
 
 
                 switch (menuItem.getItemId())
@@ -246,47 +320,100 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
                     case R.id.main_home:
 
-
-                        if(!(fragment instanceof MapviewFragment))
+                        if(fragmentManager.findFragmentByTag("one") != null)
                         {
-                            fragment = new MapviewFragment();
-                            ft = getSupportFragmentManager().beginTransaction();
-
-                            ft.replace(R.id.content_frame,fragment);
-                            ft.commit();
-
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("one")).commit();
+                        } else
+                            {
+                            //if the fragment does not exist, add it to fragment manager.
+                            fragmentManager.beginTransaction().add(R.id.content_frame, new MapviewFragment(), "one").commit();
+                        }
+                        if(fragmentManager.findFragmentByTag(currentTag) != null && !currentTag.equals("one"))
+                        {
+                            //if the other fragment is visible, hide it.
+                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(currentTag)).commit();
                         }
 
+
+                        if(MapviewFragment.activity!=null)
+                        MapviewFragment.activity.setTitle("Home");
+                        currentTag="one";
 
                         break;
 
                     case R.id.user_profile:
 
-                        if(!(fragment instanceof Profile))
+                        if(fragmentManager.findFragmentByTag("two") != null)
                         {
-
-                            fragment = new Profile();
-                            ft = getSupportFragmentManager().beginTransaction();
-                            ft.replace(R.id.content_frame,fragment);
-                            ft.commit();
-
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("two")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            fragmentManager.beginTransaction().add(R.id.content_frame, new Profile(), "two").commit();
+                        }
+                        if(fragmentManager.findFragmentByTag(currentTag) != null && !currentTag.equals("two"))
+                        {
+                            //if the other fragment is visible, hide it.
+                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(currentTag)).commit();
                         }
 
+
+                        if(Profile.activity!=null)
+                        Profile.activity.setTitle("Profile");
+                        currentTag="two";
 
                         break;
 
                     case R.id.user_groups:
+
+
+                        if(fragmentManager.findFragmentByTag("three") != null)
+                        {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("three")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            fragmentManager.beginTransaction().add(R.id.content_frame, new MyGroups(), "three").commit();
+                        }
+                        if(fragmentManager.findFragmentByTag(currentTag) != null && !currentTag.equals("three")){
+                            //if the other fragment is visible, hide it.
+                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(currentTag)).commit();
+                        }
+
+
+                        if(MyGroups.activity!=null)
+                            MyGroups.activity.setTitle("Groups");
+                        currentTag="three";
 
                         break;
 
                     case R.id.user_favorite:
 
 
+                        if(fragmentManager.findFragmentByTag("four") != null)
+                        {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("four")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            fragmentManager.beginTransaction().add(R.id.content_frame, new Friends_Frgament(), "four").commit();
+                        }
+                        if(fragmentManager.findFragmentByTag(currentTag) != null && !currentTag.equals("four")){
+                            //if the other fragment is visible, hide it.
+                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(currentTag)).commit();
+                        }
+
+
+                        if(Friends_Frgament.activity!=null)
+                            Friends_Frgament.activity.setTitle("Friends");
+                        currentTag="four";
                         break;
 
 
 
                     case R.id.user_settings:
+
                         break;
 
 
@@ -342,7 +469,24 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     }
 
 
-
+    private void openFragment(Fragment fragment, String tag)
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment existingFragment = fragmentManager.findFragmentByTag(tag);
+        if (existingFragment != null)
+        {
+            Fragment currentFragment = fragmentManager.findFragmentById(R.id.content_frame);
+            fragmentTransaction.hide(currentFragment);
+            fragmentTransaction.show(existingFragment);
+        }
+        else
+            {
+            fragmentTransaction.add(R.id.content_frame, fragment, tag);
+        }
+        fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+        fragmentTransaction.commit();
+    }
 
 
     void aboutDialog(){
@@ -355,15 +499,12 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
         dialog.setButton(AlertDialog.BUTTON_NEUTRAL,"OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-
                 dialog.dismiss();
-
             }
         });
 
         new Dialog(getApplicationContext());
         dialog.show();
-
 
     }
 
@@ -475,11 +616,26 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                             gsReference = storage.getReferenceFromUrl("gs://way-tracker-c5180.appspot.com/images/"+pathProfile);
                              navImage =  headerView.findViewById(R.id.user_image);
 
-
                             Glide.with(getApplicationContext())
                                     .using(new FirebaseImageLoader())
-                                    .load(gsReference)
-                                    .into(navImage);
+                                    .load(gsReference)    // you can pass url too
+                                    .asBitmap()
+                                    .into(new SimpleTarget<Bitmap>() {
+
+
+                                        @Override
+                                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                            // you can do something with loaded bitmap here
+                                            bitmap_profile=resource;
+                                            navImage.setImageBitmap(resource);
+                                        }
+                                    });
+
+
+//                            Glide.with(getApplicationContext())
+//                                    .using(new FirebaseImageLoader())
+//                                    .load(gsReference)
+//                                    .into(navImage);
 
 
 
@@ -502,6 +658,51 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
     }
 
+
+    public boolean checkConnection()
+    {
+        ConnectivityManager cm =
+                (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+       return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
+
+
+
+    public  void  getFrineds()
+    {
+
+         cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
+        while (cursor.moveToNext())
+        {
+            String name=cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("\\s", "");
+            ReadSingleContact(phoneNumber);
+            Log.i("phoneNumber: ", phoneNumber);
+        }
+        cursor.close();
+        frindesAdabter = new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1,frindes);
+
+
+
+
+
+
+    }
+
+
+    private void ReadSingleContact(final String phone)
+    {
+
+       if( SplachActivity.allUsers.contains(phone))
+           frindes.add(phone);
+
+
+
+
+    }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
