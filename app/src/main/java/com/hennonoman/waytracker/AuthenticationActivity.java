@@ -34,6 +34,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.quickblox.auth.QBAuth;
+import com.quickblox.auth.session.QBSession;
+import com.quickblox.auth.session.QBSettings;
+import com.quickblox.core.QBEntityCallback;
+import com.quickblox.core.exception.QBResponseException;
+import com.quickblox.users.QBUsers;
+import com.quickblox.users.model.QBUser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,11 +51,12 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
 
+
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     SharedPreferences mySharedPreferences;
     SharedPreferences.Editor myEditor;
-    String codeSent , phone,password;
+    String codeSent , phone,password,username_reg;
     PhoneAuthCredential credential;
     FirebaseFirestore firestoer;
     public static  EditText codenumber;
@@ -73,6 +81,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
          phone = getIntent().getExtras().getString("phone");
          password = getIntent().getExtras().getString("pass");
+        username_reg = getIntent().getExtras().getString("username");
 
         mySharedPreferences = getSharedPreferences("signinstatus", Context.MODE_PRIVATE);
         myEditor =mySharedPreferences.edit();
@@ -153,6 +162,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
                             writeNewUser();
 
+
                         }
                         else
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
@@ -221,6 +231,10 @@ public class AuthenticationActivity extends AppCompatActivity {
         Map<String, Object> newContact = new HashMap<>();
         newContact.put("phone", phone);
         newContact.put("password", password);
+        newContact.put("user_name", username_reg);
+      //  newContact.put("userIDQB", userID_QB);
+
+
 
         firestoer.collection("users").document(phone).set(newContact)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -228,8 +242,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                     public void onSuccess(Void aVoid) {
 
 
-                        saveUserNametoFirebase();
                         saveImagetoFirebase();
+
 
                         startActivity(new Intent(AuthenticationActivity.this,HomeActivity.class));
                         myEditor.putBoolean("checksignin", true);
@@ -254,6 +268,10 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
 
 
 
@@ -308,16 +326,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                 });
 
 
-
-
-
-
-
-
-
-
     }
-
 
 
 

@@ -57,10 +57,10 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
 
 
     private DatabaseReference mDatabase;
-    private EditText username, phone, password_reg, repassword_reg;
+    private EditText username, phone, password_reg, repassword_reg,username_reg;
     private TextInputLayout password, repassword;
 
-    String _phone, _password, _repassword, fullphone;
+    String _phone, _password, _repassword, fullphone ,username_reg_string;
     boolean checkReg = false;
     boolean regStatus = true;
     int count = 0;
@@ -79,6 +79,7 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
         phone = findViewById(R.id.phone_reg);
         password_reg = findViewById(R.id.password_reg);
         repassword_reg = findViewById(R.id.repassword_reg);
+        username_reg = findViewById(R.id.username_reg);
 
         password_reg.addTextChangedListener(this);
 
@@ -114,6 +115,7 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
         fullphone = "+" + selectCountry + phone.getText().toString();
         _password = password_reg.getText().toString();
         _repassword = repassword_reg.getText().toString();
+        username_reg_string = username_reg.getText().toString();
 
         boolean cancel = false;
 
@@ -129,6 +131,13 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
         } else if (!isPhoneValid(_phone)) {
 
             Snackbar.make(view, "wrong phone number", Snackbar.LENGTH_LONG).show();
+            cancel = true;
+        }
+
+        else if (username_reg_string.isEmpty())
+        {
+
+            Snackbar.make(view, "wrong user name", Snackbar.LENGTH_LONG).show();
             cancel = true;
         }
 
@@ -200,9 +209,7 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
         return password.length() > 5;
     }
 
-    private boolean isUsernameValid(String username) {
-        return username.length() > 5;
-    }
+
 
     private boolean isPhoneValid(String phone) {
         return phone.length() >= 9;
@@ -255,6 +262,7 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
         Intent i = new Intent(RegisterActivity.this, AuthenticationActivity.class);
         i.putExtra("phone", fullphone);
         i.putExtra("pass", _password);
+        i.putExtra("username", username_reg_string);
         progressDialog.dismiss();
         startActivity(i);
         finish();
@@ -322,6 +330,7 @@ public class RegisterActivity extends AppCompatActivity implements TextWatcher {
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
     }
+
 
 
 

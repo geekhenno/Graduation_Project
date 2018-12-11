@@ -242,7 +242,7 @@ public class MapviewFragment extends Fragment implements OnMapReadyCallback {
             return;
         }
         mMap.setMyLocationEnabled(true);
-        mMap.setMinZoomPreference(15);
+
 
 
     }

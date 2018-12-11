@@ -1,29 +1,18 @@
 package com.hennonoman.waytracker;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Looper;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -35,16 +24,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,40 +37,17 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.hennonoman.waytracker.HelperClasses.GroupInfo;
-import com.hennonoman.waytracker.HelperClasses.list;
+
 import com.hennonoman.waytracker.fragments_java.ChangePasswordFragmant;
 import com.hennonoman.waytracker.fragments_java.Friends_Frgament;
 import com.hennonoman.waytracker.fragments_java.GroupFragment;
@@ -93,21 +55,9 @@ import com.hennonoman.waytracker.fragments_java.JoinGroup;
 import com.hennonoman.waytracker.fragments_java.MapviewFragment;
 import com.hennonoman.waytracker.fragments_java.MyGroups;
 import com.hennonoman.waytracker.fragments_java.Profile;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
-import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
-import java.net.URI;
-import java.text.DateFormat;
+
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 import butterknife.ButterKnife;
 
@@ -147,6 +97,8 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     public static ArrayList<String> frindes;
     public static  ArrayAdapter frindesAdabter;
 
+    public static ArrayList<String> frindes_QB_ID;
+
 
     //
     public static String[] from;
@@ -162,15 +114,18 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         switch (item.getItemId()) {
             case R.id.create_group:
 
+//
+//                if(!(fragment instanceof ListUsersActivity))
+//                {
+//                    fragment = new ListUsersActivity();
+//                    ft = getSupportFragmentManager().beginTransaction();
+//                    ft.addToBackStack(null);
+//                    ft.replace(R.id.content_frame,fragment);
+//                    ft.commit();
+//                }
 
-                if(!(fragment instanceof GroupFragment))
-                {
-                    fragment = new GroupFragment();
-                    ft = getSupportFragmentManager().beginTransaction();
-                    ft.addToBackStack(null);
-                    ft.replace(R.id.content_frame,fragment);
-                    ft.commit();
-                }
+
+
 
                 break;
 
@@ -242,6 +197,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
 
         frindes=new ArrayList<>();
+        frindes_QB_ID = new ArrayList<>();
         userphone = mySharedPreferences.getString("userphone","");
 
         toolbar = findViewById(R.id.mapToolBar);
@@ -254,6 +210,8 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+
 
 
         ButterKnife.bind(this);
@@ -374,7 +332,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                             fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("three")).commit();
                         } else {
                             //if the fragment does not exist, add it to fragment manager.
-                            fragmentManager.beginTransaction().add(R.id.content_frame, new MyGroups(), "three").commit();
+                          //  fragmentManager.beginTransaction().add(R.id.content_frame, new ChatDialogsActivity(), "three").commit();
                         }
                         if(fragmentManager.findFragmentByTag(currentTag) != null && !currentTag.equals("three")){
                             //if the other fragment is visible, hide it.
@@ -382,9 +340,9 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                         }
 
 
-                        if(MyGroups.activity!=null)
-                            MyGroups.activity.setTitle("Groups");
-                        currentTag="three";
+//                        if(ChatDialogsActivity.activity!=null)
+//                            ChatDialogsActivity.activity.setTitle("Group");
+//                        currentTag="three";
 
                         break;
 
@@ -421,8 +379,9 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                         break;
 
                     case R.id.aboutus:
+                    //    startActivity(new Intent(HomeActivity.this, MainActivity.class));
 
-                        aboutDialog();
+//                        aboutDialog();
                         break;
 
 
@@ -511,7 +470,6 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     void signoutDialog(){
 
         AlertDialog dialog = new AlertDialog.Builder(this).create();
-
         dialog.setTitle("Way Tracker");
         dialog.setIcon(R.drawable.logo1);
         dialog.setMessage("Are you sure you want to sign out ?");
@@ -526,6 +484,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
         dialog.setButton(AlertDialog.BUTTON_NEUTRAL,"Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+
 
                 myEditor.putBoolean("checksignin", false);
                 myEditor.commit();
@@ -552,7 +511,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
         String phone = userphone;
         final String user_name;
         DocumentSnapshot doc=null;
-        DocumentReference user = firestoer.collection("users_name").document(phone);
+        DocumentReference user = firestoer.collection("users").document(phone);
         user.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
         {
             @Override
@@ -683,7 +642,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
             Log.i("phoneNumber: ", phoneNumber);
         }
         cursor.close();
-        frindesAdabter = new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1,frindes);
+        frindesAdabter = new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_multiple_choice,frindes);
 
 
 
@@ -696,13 +655,19 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
     private void ReadSingleContact(final String phone)
     {
 
-       if( SplachActivity.allUsers.contains(phone))
+
+        if(SplachActivity.allUsers.contains(phone))
+       {
+           Toast.makeText(getApplicationContext(), "read contact", Toast.LENGTH_SHORT).show();
+            Log.i("usersFrindes",phone);
            frindes.add(phone);
+           Log.i("hello1",phone);
 
 
-
-
+       }
     }
+
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {

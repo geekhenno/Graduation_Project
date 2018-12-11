@@ -15,4 +15,6 @@
     <string name="password_strength_strong">Strong</string>
     <string name="password_strength_very_strong">Very Strong</string>
 
+    <string name="send_button_label">Send</string>
+
 </resources>

@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+
     private EditText mPhoneView;
     CountryCodePicker ccp;
     private EditText mPasswordView;
@@ -50,6 +51,9 @@ public class LoginActivity extends AppCompatActivity {
     SharedPreferences.Editor myEditor;
     public static Activity loginActivity;
     ProgressDialog progressDialog;
+
+    public static String  user;
+    public static String password;
 
 
     String selectCountry="";
@@ -65,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);
-
 
 
         loginActivity=this;
@@ -252,8 +255,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (doc.getString("phone").equalsIgnoreCase(user_name) && doc.getString("password").equalsIgnoreCase(password) )
                         {
 
-
-
                             myEditor.putBoolean("checksignin", true);
                             myEditor.putString("userphone", selectCountry+mPhoneView.getText().toString());
                             myEditor.commit();
@@ -367,5 +368,8 @@ public class LoginActivity extends AppCompatActivity {
         }
         requestPermissions(remainingPermissions.toArray(new String[remainingPermissions.size()]), 101);
     }
+
+
+
 
 }

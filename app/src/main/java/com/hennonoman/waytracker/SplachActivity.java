@@ -28,17 +28,26 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.quickblox.auth.session.QBSettings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class SplachActivity extends AppCompatActivity {
+
+    static final String APP_ID = "74508" ;
+
+
     SharedPreferences.Editor myEditor;
     SharedPreferences mySharedPreferences;
      boolean status;
-     long time=2500;
+     long time=5000;
     FirebaseFirestore firestoer;
     public static ArrayList<String> allUsers;
+
+
+    public static HashMap<String,String> users_info;
 
     public void setLocale()
     {
@@ -56,6 +65,8 @@ public class SplachActivity extends AppCompatActivity {
 
 
         allUsers= new ArrayList<>();
+
+        users_info = new HashMap();
         firestoer = FirebaseFirestore.getInstance();
         ReadSingleContact();
         // for full screen
