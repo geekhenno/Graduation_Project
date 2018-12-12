@@ -372,6 +372,8 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
                     case R.id.user_settings:
 
+                        Toast.makeText(HomeActivity.this, "hello chat", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(HomeActivity.this,MainChat.class));
                         break;
 
 
@@ -573,6 +575,7 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
 
                             pathProfile=doc.getString("user_image");
                             gsReference = storage.getReferenceFromUrl("gs://way-tracker-c5180.appspot.com/images/"+pathProfile);
+
                              navImage =  headerView.findViewById(R.id.user_image);
 
                             Glide.with(getApplicationContext())
@@ -589,12 +592,6 @@ public class HomeActivity extends AppCompatActivity implements Profile.ProfileIn
                                             navImage.setImageBitmap(resource);
                                         }
                                     });
-
-
-//                            Glide.with(getApplicationContext())
-//                                    .using(new FirebaseImageLoader())
-//                                    .load(gsReference)
-//                                    .into(navImage);
 
 
 

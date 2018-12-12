@@ -69,7 +69,8 @@
         <activity
             android:name=".HomeActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".HelpFragment"></activity>
+        <activity android:name=".HelpFragment" />
+        <activity android:name=".MainChat"></activity>
     </application>
 
 </manifest>
